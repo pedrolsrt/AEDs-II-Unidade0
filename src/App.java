@@ -1,53 +1,46 @@
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Scanner;
 
 public class App {
 
-    /** Quantidade máxima de produtos que podem ser armazenados no vetor */
     static final int MAX_NOVOS_PRODUTOS = 10;
 
-    /** Nome do arquivo de dados. O arquivo deve estar localizado na raiz do projeto */
     static String nomeArquivoDados;
-    
-    /** Scanner para leitura de dados do teclado */
+
     static Scanner teclado;
 
-    /** Vetor de produtos cadastrados */
     static Produto[] produtosCadastrados;
 
-    /** Quantidade de produtos cadastrados atualmente no vetor */
     static int quantosProdutos = 0;
 
-    /** Gera um efeito de pausa na CLI. Espera por um enter para continuar */
     static void pausa() {
         System.out.println("Digite enter para continuar...");
         teclado.nextLine();
     }
 
-    /** Cabeçalho principal da CLI do sistema */
     static void cabecalho() {
         System.out.println("AEDs II COMÉRCIO DE COISINHAS");
         System.out.println("=============================");
     }
-    
-    /** Imprime o menu principal, lê a opção do usuário e a retorna */
+
     static int menu() {
         cabecalho();
+
         System.out.println("1 - Listar todos os produtos");
         System.out.println("2 - Procurar e imprimir os dados de um produto");
         System.out.println("3 - Cadastrar novo produto");
         System.out.println("0 - Sair");
+
         System.out.print("Digite sua opção: ");
+
         return Integer.parseInt(teclado.nextLine());
     }
-    
-    /**
-     * Lê os dados de um arquivo-texto e retorna um vetor de produtos.
-     */
+
     static Produto[] lerProdutos(String nomeArquivoDados) {
 
         try {
@@ -56,10 +49,12 @@ public class App {
 
             int quantidade = Integer.parseInt(leitor.nextLine());
 
-            Produto[] produtos = new Produto[quantidade + MAX_NOVOS_PRODUTOS];
+            Produto[] produtos =
+                    new Produto[quantidade + MAX_NOVOS_PRODUTOS];
 
             for (int i = 0; i < quantidade; i++) {
                 String linha = leitor.nextLine();
+
                 produtos[i] = Produto.criarDoTexto(linha);
             }
 
@@ -69,91 +64,201 @@ public class App {
 
             return produtos;
 
-       } catch (IOException e) {
-    System.out.println("Erro ao ler o arquivo de dados.");
-    return new Produto[MAX_NOVOS_PRODUTOS];
-}
+        } catch (IOException e) {
+            System.out.println("Erro ao ler o arquivo de dados.");
+
+            return new Produto[MAX_NOVOS_PRODUTOS];
+        }
     }
-    
-    /**
-     * Localiza um produto pelo nome e imprime seus dados.
-     */
+
     static void localizarProdutos() {
 
         System.out.print("Digite o nome do produto: ");
         String nome = teclado.nextLine();
 
-        Produto procurado = new ProdutoNaoPerecivel(nome, 1.0);
+        Produto procurado =
+                new ProdutoNaoPerecivel(nome, 1.0);
 
         for (int i = 0; i < quantosProdutos; i++) {
 
             if (produtosCadastrados[i].equals(procurado)) {
+
                 System.out.println(produtosCadastrados[i]);
+
                 return;
             }
         }
 
         System.out.println("Produto não encontrado.");
     }
-    
-    /**
-     * Salva os dados dos produtos cadastrados no arquivo.
-     */
+
     public static void salvarProdutos(String nomeArquivo) {
 
         try {
-            FileWriter escritor = new FileWriter(nomeArquivo);
+            FileWriter escritor =
+                    new FileWriter(nomeArquivo);
 
             escritor.write(quantosProdutos + "\n");
 
             for (int i = 0; i < quantosProdutos; i++) {
-                escritor.write(produtosCadastrados[i].gerarDadosTexto() + "\n");
+
+                escritor.write(
+                        produtosCadastrados[i].gerarDadosTexto()
+                                + "\n"
+                );
             }
 
             escritor.close();
 
         } catch (IOException e) {
-            System.out.println("Erro ao salvar os produtos.");
+
+            System.out.println(
+                    "Erro ao salvar os produtos."
+            );
         }
     }
-    
-    /** Lista todos os produtos cadastrados, numerados, um por linha */
+
     static void listarTodosOsProdutos() {
-    	
+
+        if (quantosProdutos == 0) {
+
+            System.out.println(
+                    "Nenhum produto cadastrado."
+            );
+
+            return;
+        }
+
+        for (int i = 0; i < quantosProdutos; i++) {
+
+            System.out.println(
+                    (i + 1) + " - " + produtosCadastrados[i]
+            );
+        }
     }
-    
-    /**
-     * Rotina para cadastro de um novo produto.
-     */
+
     static void cadastrarProduto() {
-    	
-    }  
-    
-	public static void main(String[] args) {
 
-        teclado = new Scanner(System.in, Charset.forName("UTF-8"));
+        if (quantosProdutos >= produtosCadastrados.length) {
 
-        nomeArquivoDados = "dadosProdutos.csv";
+            System.out.println(
+                    "Não há espaço para novos produtos."
+            );
 
-        produtosCadastrados = lerProdutos(nomeArquivoDados);
-        
+            return;
+        }
+
+        System.out.println("1 - Produto não perecível");
+        System.out.println("2 - Produto perecível");
+
+        System.out.print("Digite o tipo do produto: ");
+        int tipo = Integer.parseInt(teclado.nextLine());
+
+        System.out.print("Descrição: ");
+        String descricao = teclado.nextLine();
+
+        System.out.print("Preço de custo: ");
+        double precoCusto =
+                Double.parseDouble(teclado.nextLine());
+
+        System.out.print("Margem de lucro: ");
+        double margemLucro =
+                Double.parseDouble(teclado.nextLine());
+
+        Produto novoProduto;
+
+        if (tipo == 1) {
+
+            novoProduto =
+                    new ProdutoNaoPerecivel(
+                            descricao,
+                            precoCusto,
+                            margemLucro
+                    );
+
+        } else if (tipo == 2) {
+
+            System.out.print(
+                    "Data de validade (dd/MM/yyyy): "
+            );
+
+            String data = teclado.nextLine();
+
+            DateTimeFormatter formato =
+                    DateTimeFormatter.ofPattern(
+                            "dd/MM/yyyy"
+                    );
+
+            LocalDate validade =
+                    LocalDate.parse(data, formato);
+
+            novoProduto =
+                    new ProdutoPerecivel(
+                            descricao,
+                            precoCusto,
+                            margemLucro,
+                            validade
+                    );
+
+        } else {
+
+            System.out.println(
+                    "Tipo de produto inválido."
+            );
+
+            return;
+        }
+
+        produtosCadastrados[quantosProdutos] =
+                novoProduto;
+
+        quantosProdutos++;
+
+        System.out.println(
+                "Produto cadastrado com sucesso."
+        );
+    }
+
+    public static void main(String[] args) {
+
+        teclado =
+                new Scanner(
+                        System.in,
+                        Charset.forName("UTF-8")
+                );
+
+        nomeArquivoDados =
+                "dadosProdutos.csv";
+
+        produtosCadastrados =
+                lerProdutos(nomeArquivoDados);
+
         int opcao = -1;
-      
+
         do {
+
             opcao = menu();
 
             switch (opcao) {
-                case 1 -> listarTodosOsProdutos();
-                case 2 -> localizarProdutos();
-                case 3 -> cadastrarProduto();
+
+                case 1 ->
+                        listarTodosOsProdutos();
+
+                case 2 ->
+                        localizarProdutos();
+
+                case 3 ->
+                        cadastrarProduto();
             }
 
-            pausa();
+            if (opcao != 0) {
+                pausa();
+            }
 
-        } while (opcao != 0);       
+        } while (opcao != 0);
 
         salvarProdutos(nomeArquivoDados);
 
-        teclado.close();    
+        teclado.close();
     }
 }

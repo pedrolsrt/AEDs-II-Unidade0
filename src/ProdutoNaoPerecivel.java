@@ -1,4 +1,6 @@
-public class ProdutoNaoPerecivel extends Produto{
+import java.util.Locale;
+
+public class ProdutoNaoPerecivel extends Produto {
 
 	/**
      * Construtor completo. Causa exceção em caso de valores inválidos para os dados do produto.
@@ -12,18 +14,14 @@ public class ProdutoNaoPerecivel extends Produto{
 	}
 	
 	/**
-     * Construtor do produto com margem de lucro padrão (20%). Causa exceção em caso de valores inválidos para os dados do produto.
-     * @param desc Descrição do produto (mínimo de 3 caracteres)
-     * @param precoCusto Preço de compra do produto (mínimo 0.01)
-     * @throws IllegalArgumentException em caso dos limites acima serem desrespeitados.
+     * Construtor do produto com margem de lucro padrão (20%).
      */
 	public ProdutoNaoPerecivel(String desc, double precoCusto) {
 		super(desc, precoCusto);
 	}
 
 	/**
-     * Retorna o valor de venda do produto, considerando seu preço de custo e margem de lucro
-     * @return Valor de venda do produto (double, positivo)
+     * Retorna o valor de venda do produto.
      */
 	@Override
 	public double valorDeVenda() {
@@ -31,11 +29,17 @@ public class ProdutoNaoPerecivel extends Produto{
 	}
 
 	/**
-     * Gera uma linha de texto a partir dos dados do produto. Preço e margem de lucro são formatados com 2 casas decimais.
-     * @return Uma string no formato "1;descrição;preçoDeCusto;margemDeLucro"
+     * Gera uma linha de texto a partir dos dados do produto.
+     * Preço e margem de lucro são formatados com 2 casas decimais.
      */
 	@Override
     public String gerarDadosTexto() {
-    	return null;
+    	return String.format(
+    			Locale.US,
+    			"1;%s;%.2f;%.2f",
+    			descricao,
+    			precoCusto,
+    			margemLucro
+    	);
     }
 }

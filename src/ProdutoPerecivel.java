@@ -1,9 +1,8 @@
-
-
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 
-public class ProdutoPerecivel extends Produto{
+public class ProdutoPerecivel extends Produto {
 
 	/** Desconto para proximidade de validade: 25% */
 	private static final double DESCONTO = 0.25;
@@ -11,18 +10,12 @@ public class ProdutoPerecivel extends Produto{
 	/** Prazo, em dias, para conceder o desconto por proximidade da validade */
 	private static final int PRAZO_DESCONTO = 7;
 	
-	/** Data de validade do produto. Não pode ser anterior à data da criação ou venda do produto. */
+	/** Data de validade do produto */
 	private LocalDate dataDeValidade;
 	
 	/**
-     * Construtor completo. 
-     * Causa exceção em caso de valores inválidos para os dados do produto.
-     * @param desc Descrição do produto (mínimo de 3 caracteres)
-     * @param precoCusto Preço de compra do produto (mínimo 0.01)
-     * @param margemLucro Margem de lucro para a venda (mínimo 0.01)
-     * @param validade Data de validade do produto, que deve ser posterior à data atual.
-     * @throws IllegalArgumentException em caso dos limites acima serem desrespeitados.
-     */
+	 * Construtor completo.
+	 */
 	public ProdutoPerecivel(String desc, double precoCusto, double margemLucro, LocalDate validade) {
 		
 		super(desc, precoCusto, margemLucro);
@@ -30,16 +23,13 @@ public class ProdutoPerecivel extends Produto{
 		if (validade.isBefore(LocalDate.now())) {
 			throw new IllegalArgumentException("Data de validade do produto é anterior ao dia de hoje!");
 		}
+		
 		dataDeValidade = validade;
 	}
 	
 	/**
-     * Construtor do produto com margem de lucro padrão (20%). Causa exceção em caso de valores inválidos para os dados do produto.
-     * @param desc Descrição do produto (mínimo de 3 caracteres)
-     * @param precoCusto Preço de compra do produto (mínimo 0.01)
-     * @param validade Data de validade do produto, que deve ser posterior à data atual.
-     * @throws IllegalArgumentException em caso dos limites acima serem desrespeitados.
-     */
+	 * Construtor com margem de lucro padrão.
+	 */
 	public ProdutoPerecivel(String desc, double precoCusto, LocalDate validade) {
 		
 		super(desc, precoCusto);
@@ -47,14 +37,13 @@ public class ProdutoPerecivel extends Produto{
 		if (validade.isBefore(LocalDate.now())) {
 			throw new IllegalArgumentException("Data de validade do produto é anterior ao dia de hoje!");
 		}
+		
 		dataDeValidade = validade;
 	}
 
 	/**
-     * Retorna o valor de venda do produto, considerando seu preço de custo, margem de lucro e
-     * dias de validade. Se o prazo de validade estiver a menos de 7 dias, será concedido desconto de 25%.
-     * @return Valor de venda do produto (double, positivo)
-     */
+	 * Retorna o valor de venda do produto.
+	 */
 	@Override
 	public double valorDeVenda() {
 		
@@ -74,13 +63,10 @@ public class ProdutoPerecivel extends Produto{
 	}
 	
 	/**
-     * Descrição, em string, do produto, contendo sua descrição, o valor de venda e sua data de validade.
-     *  @return String com o formato:
-     * [NOME]: R$ [VALOR DE VENDA]
-     * Válido até [DD/MM/YYYY]
-     */
+	 * Descrição do produto com sua data de validade.
+	 */
     @Override
-    public String toString(){
+    public String toString() {
     	
         DateTimeFormatter formato = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         
@@ -91,12 +77,20 @@ public class ProdutoPerecivel extends Produto{
     }
     
     /**
-     * Gera uma linha de texto a partir dos dados do produto. Preço e margem de lucro são formatados com 2 casas decimais.
-     * Data de validade é formatada no formato dd/mm/aaaa
-     * @return Uma string no formato "2;descrição;preçoDeCusto;margemDeLucro;dataDeValidade"
+     * Gera uma linha de texto a partir dos dados do produto.
      */
 	@Override
     public String gerarDadosTexto() {
-		return null;
+		
+		DateTimeFormatter formato = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+		
+		return String.format(
+				Locale.US,
+				"2;%s;%.2f;%.2f;%s",
+				descricao,
+				precoCusto,
+				margemLucro,
+				formato.format(dataDeValidade)
+		);
 	}
 }

@@ -1,6 +1,7 @@
 import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.format.ResolverStyle;
 
 public abstract class Produto {
 	
@@ -18,8 +19,11 @@ public abstract class Produto {
      */
 	private void init(String desc, double precoCusto, double margemLucro) {
 		
-		if ((desc.length() >= 3) && (precoCusto > 0.0) && (margemLucro > 0.0)) {
-			descricao = desc;
+		if (desc != null && desc.trim().length() >= 3
+                && !desc.contains(";") && !desc.contains("\n") && !desc.contains("\r")
+                && Double.isFinite(precoCusto) && precoCusto > 0.0
+                && Double.isFinite(margemLucro) && margemLucro > 0.0) {
+		descricao = desc.trim();
 			this.precoCusto = precoCusto;
 			this.margemLucro = margemLucro;
 		} else {
@@ -74,9 +78,18 @@ public abstract class Produto {
      */
     static Produto criarDoTexto(String linha) {
     	
-    	String[] dados = linha.split(";");
+        if (linha == null) {
+            throw new IllegalArgumentException("Linha de produto ausente.");
+        }
+    	String[] dados = linha.split(";", -1);
+        if (dados.length < 4) {
+            throw new IllegalArgumentException("Linha de produto incompleta.");
+        }
     	
     	int tipo = Integer.parseInt(dados[0]);
+        if ((tipo == 1 && dados.length != 4) || (tipo == 2 && dados.length != 5)) {
+            throw new IllegalArgumentException("Quantidade de campos inválida.");
+        }
     	String descricao = dados[1];
     	double precoCusto = Double.parseDouble(dados[2]);
     	double margemLucro = Double.parseDouble(dados[3]);
@@ -86,13 +99,14 @@ public abstract class Produto {
     	}
     	
     	if (tipo == 2) {
-    		DateTimeFormatter formato = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+    		DateTimeFormatter formato = DateTimeFormatter.ofPattern("dd/MM/uuuu")
+                    .withResolverStyle(ResolverStyle.STRICT);
     		LocalDate validade = LocalDate.parse(dados[4], formato);
     		
     		return new ProdutoPerecivel(descricao, precoCusto, margemLucro, validade);
     	}
     	
-    	return null;
+    	throw new IllegalArgumentException("Tipo de produto inválido: " + tipo);
     }
     	
     /**

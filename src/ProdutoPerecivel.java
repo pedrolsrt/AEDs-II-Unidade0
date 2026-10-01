@@ -1,5 +1,6 @@
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.Locale;
 
 public class ProdutoPerecivel extends Produto {
@@ -55,7 +56,7 @@ public class ProdutoPerecivel extends Produto {
 		
 		precoVenda = (precoCusto * (1.0 + margemLucro));
 				
-		if (LocalDate.now().until(dataDeValidade).getDays() <= PRAZO_DESCONTO) {
+		if (ChronoUnit.DAYS.between(LocalDate.now(), dataDeValidade) <= PRAZO_DESCONTO) {
 			precoVenda = precoVenda * (1.0 - DESCONTO);
 		}
 		
